@@ -73,7 +73,7 @@ def delete_team(team_name):
     requests.delete(url, headers=header, verify=False)
 
 
-def create_room(space_name):
+def create_space(space_name):
     """
     This function will create a Webex Teams space with the name {space_name}
     Calls to Webex Teams - /rooms
@@ -90,7 +90,7 @@ def create_room(space_name):
     return space_id
 
 
-def get_room_id(space_name):
+def get_space_id(space_name):
     """
     This function will find the Webex Teams space id based on the {space_name}
     Call to Webex Teams - /rooms
@@ -120,7 +120,7 @@ def add_team_membership(space_name, email_invite):
     :return: status for adding the user, by returning the email address
     """
 
-    space_id = get_room_id(space_name)
+    space_id = get_space_id(space_name)
     payload = {'roomId': space_id, 'personEmail': email_invite, 'isModerator': 'true'}
     url = WEBEX_TEAMS_URL + '/memberships'
     header = {'content-type': 'application/json', 'authorization': WEBEX_TEAMS_AUTH}
@@ -133,7 +133,7 @@ def add_team_membership(space_name, email_invite):
     return membership
 
 
-def delete_room(space_name):
+def delete_space(space_name):
     """
     This function will delete the Webex Teams space with the {space_name}
     Calls to: Webex Teams - /rooms
@@ -141,7 +141,7 @@ def delete_room(space_name):
     :return:
     """
 
-    space_id = get_room_id(space_name)
+    space_id = get_space_id(space_name)
     url = WEBEX_TEAMS_URL + '/rooms/' + space_id
     header = {'content-type': 'application/json', 'authorization': WEBEX_TEAMS_AUTH}
     requests.delete(url, headers=header, verify=False)
@@ -158,7 +158,7 @@ def last_user_message(space_name):
              {last_user_email} - the author of the last message in the space
     """
 
-    space_id = get_room_id(space_name)
+    space_id = get_space_id(space_name)
     url = WEBEX_TEAMS_URL + '/messages?roomId=' + space_id
     header = {'content-type': 'application/json', 'authorization': WEBEX_TEAMS_AUTH}
     response = requests.get(url, headers=header, verify=False)
@@ -178,7 +178,7 @@ def add_space_membership(space_name, email_invite):
     :return: status for adding the user, by returning the email address
     """
 
-    space_id = get_room_id(space_name)
+    space_id = get_space_id(space_name)
     payload = {'roomId': space_id, 'personEmail': email_invite, 'isModerator': 'true'}
     url = WEBEX_TEAMS_URL + '/memberships'
     header = {'content-type': 'application/json', 'authorization': WEBEX_TEAMS_AUTH}
@@ -191,7 +191,7 @@ def add_space_membership(space_name, email_invite):
     return membership
 
 
-def post_room_message(space_name, message):
+def post_space_message(space_name, message):
     """
     This function will post the {message} to the Webex Teams space with the {space_name}
     Call to function get_space_id(space_name) to find the space_id
@@ -201,14 +201,14 @@ def post_room_message(space_name, message):
     :return: none
     """
 
-    space_id = get_room_id(space_name)
+    space_id = get_space_id(space_name)
     payload = {'roomId': space_id, 'text': message}
     url = WEBEX_TEAMS_URL + '/messages'
     header = {'content-type': 'application/json', 'authorization': WEBEX_TEAMS_AUTH}
     requests.post(url, data=json.dumps(payload), headers=header, verify=False)
 
 
-def post_room_file(space_name, file_name, file_type, file_path):
+def post_space_file(space_name, file_name, file_type, file_path):
     """
     This function will post the file with the name {file_name}, type of file {file_type},
     from the local folder with the path {file_path}, to the Webex Teams space with the name {space_name}
@@ -221,7 +221,7 @@ def post_room_file(space_name, file_name, file_type, file_path):
     :return:
     """
 
-    space_id = get_room_id(space_name)
+    space_id = get_space_id(space_name)
 
     # get the file name without the extension
     file = file_name.split('.')[0]
