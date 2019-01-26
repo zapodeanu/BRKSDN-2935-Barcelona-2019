@@ -1,0 +1,15 @@
+!
+no ip vrf SECURE_REMOTE
+!
+no interface Loopback200
+!
+no interface Tunnel201
+!
+default interface GigabitEthernet3
+!
+router eigrp 123
+ no network 10.93.140.48 0.0.0.0
+!
+no router eigrp 201
+!
+
