@@ -20,7 +20,7 @@ import re
 # import functions modules
 
 import utils
-import spark_apis
+import webex_teams_apis
 import dnac_apis
 import asav_apis
 import config
@@ -102,44 +102,44 @@ def main():
     if user_input != 'y':
         # verify if Spark Space exists, if not create Spark Space, and add membership (optional)
 
-        spark_room_id = spark_apis.get_room_id(ROOM_NAME)
+        spark_room_id = webex_teams_apis.get_room_id(ROOM_NAME)
         if spark_room_id is None:
-            spark_room_id = spark_apis.create_room(ROOM_NAME)
+            spark_room_id = webex_teams_apis.create_room(ROOM_NAME)
             print('- ', ROOM_NAME, ' -  Spark room created')
 
             # invite membership to the room
-            spark_apis.add_room_membership(spark_room_id, APPROVER_EMAIL)
+            webex_teams_apis.add_room_membership(spark_room_id, APPROVER_EMAIL)
 
-            spark_apis.post_room_message(ROOM_NAME, 'To require access enter :  IPD')
-            spark_apis.post_room_message(ROOM_NAME, 'Ready for input!')
+            webex_teams_apis.post_room_message(ROOM_NAME, 'To require access enter :  IPD')
+            webex_teams_apis.post_room_message(ROOM_NAME, 'Ready for input!')
             print('Instructions posted in the room')
         else:
             print('- ', ROOM_NAME, ' -  Existing Spark room found')
 
-            spark_apis.post_room_message(ROOM_NAME, 'To require access enter :  IPD')
-            spark_apis.post_room_message(ROOM_NAME, 'Ready for input!')
+            webex_teams_apis.post_room_message(ROOM_NAME, 'To require access enter :  IPD')
+            webex_teams_apis.post_room_message(ROOM_NAME, 'Ready for input!')
         print('- ', ROOM_NAME, ' -  Spark room id: ', spark_room_id)
 
         # check for messages to identify the last message posted and the user's email who posted the message
         # check for the length of time required for access
 
-        last_message = (spark_apis.last_user_message(ROOM_NAME))[0]
+        last_message = (webex_teams_apis.last_user_message(ROOM_NAME))[0]
 
         while last_message == 'Ready for input!':
             time.sleep(5)
-            last_message = (spark_apis.last_user_message(ROOM_NAME))[0]
+            last_message = (webex_teams_apis.last_user_message(ROOM_NAME))[0]
             if last_message == 'IPD':
-                last_person_email = (spark_apis.last_user_message(ROOM_NAME))[1]
-                spark_apis.post_room_message(ROOM_NAME, 'How long time do you need access for? (in minutes)  : ')
+                last_person_email = (webex_teams_apis.last_user_message(ROOM_NAME))[1]
+                webex_teams_apis.post_room_message(ROOM_NAME, 'How long time do you need access for? (in minutes)  : ')
                 time.sleep(10)
-                if (spark_apis.last_user_message(ROOM_NAME))[0] == 'How long time do you need access for? (in minutes)  : ':
+                if (webex_teams_apis.last_user_message(ROOM_NAME))[0] == 'How long time do you need access for? (in minutes)  : ':
                     timer = 30 * 60
                 else:
-                    timer = int(spark_apis.last_user_message(ROOM_NAME)[0]) * 60
+                    timer = int(webex_teams_apis.last_user_message(ROOM_NAME)[0]) * 60
             elif last_message != 'Ready for input!':
-                spark_apis.post_room_message(ROOM_NAME, 'I do not understand you')
-                spark_apis.post_room_message(ROOM_NAME, 'To require access enter :  IPD')
-                spark_apis.post_room_message(ROOM_NAME, 'Ready for input!')
+                webex_teams_apis.post_room_message(ROOM_NAME, 'I do not understand you')
+                webex_teams_apis.post_room_message(ROOM_NAME, 'To require access enter :  IPD')
+                webex_teams_apis.post_room_message(ROOM_NAME, 'Ready for input!')
                 last_message = 'Ready for input!'
 
         print('\nThe user with this email: ', last_person_email, ' asked access to IPD for ', (timer/60), ' minutes')
@@ -171,21 +171,21 @@ def main():
     # request approval
 
     if user_input != 'y':
-        spark_apis.post_room_message(ROOM_NAME, ('The user with this email ' + last_person_email +
+        webex_teams_apis.post_room_message(ROOM_NAME, ('The user with this email ' + last_person_email +
                                                  ' asked access to IPD for ' + str(timer / 60) + ' minutes'))
-        spark_apis.post_room_message(ROOM_NAME, 'The IPD is connected to the switch ' + remote_device_hostname +
+        webex_teams_apis.post_room_message(ROOM_NAME, 'The IPD is connected to the switch ' + remote_device_hostname +
                                      ' at our location ' + remote_device_location)
-        spark_apis.post_room_message(ROOM_NAME, 'To approve enter: Y/N')
+        webex_teams_apis.post_room_message(ROOM_NAME, 'To approve enter: Y/N')
 
         # check for messages to identify the last message posted and the user's email who posted the message.
         # looking for user - Director email address, and message = 'Y'
 
-        last_message = (spark_apis.last_user_message(ROOM_NAME))[0]
+        last_message = (webex_teams_apis.last_user_message(ROOM_NAME))[0]
 
         while last_message == 'To approve enter: Y/N':
             time.sleep(5)
-            last_message = (spark_apis.last_user_message(ROOM_NAME))[0]
-            approver_email = (spark_apis.last_user_message(ROOM_NAME))[1]
+            last_message = (webex_teams_apis.last_user_message(ROOM_NAME))[0]
+            approver_email = (webex_teams_apis.last_user_message(ROOM_NAME))[1]
             if last_message == 'y' or 'Y':
                 if approver_email == APPROVER_EMAIL:
                     print('Access Approved')
@@ -328,17 +328,17 @@ def main():
 
     # Spark notification
 
-    spark_apis.post_room_message(ROOM_NAME, 'Requested access to this device: IPD, located in our office: ' +
-                                 remote_device_location + ' by user ' + last_person_email + ' has been granted for '
-                                 + str(int(timer / 60)) + ' minutes')
+    webex_teams_apis.post_room_message(ROOM_NAME, 'Requested access to this device: IPD, located in our office: ' +
+                                       remote_device_location + ' by user ' + last_person_email + ' has been granted for '
+                                       + str(int(timer / 60)) + ' minutes')
     log_access_info = '\nRequested access to this device: IPD, located in our office: '
     log_access_info += remote_device_location + ' by user: ' + last_person_email + ' has been granted for ' + str(int(timer / 60)) + ' minutes'
 
     # Tropo notification - voice call
 
-    voice_notification_result = spark_apis.tropo_notification()
+    voice_notification_result = webex_teams_apis.tropo_notification()
 
-    spark_apis.post_room_message(ROOM_NAME, 'Tropo Voice Notification: ' + voice_notification_result)
+    webex_teams_apis.post_room_message(ROOM_NAME, 'Tropo Voice Notification: ' + voice_notification_result)
     log_access_info += '\nTropo Voice Notification: ' + voice_notification_result
 
     # create and update ServiceNow incident
@@ -426,8 +426,8 @@ def main():
 
     # Spark notification
 
-    spark_apis.post_room_message(ROOM_NAME, 'Access to this device: IPD has been terminated')
-    spark_apis.post_room_message(ROOM_NAME, '----------------------------------------------')
+    webex_teams_apis.post_room_message(ROOM_NAME, 'Access to this device: IPD has been terminated')
+    webex_teams_apis.post_room_message(ROOM_NAME, '----------------------------------------------')
 
     # update the database with script execution
 
