@@ -12,13 +12,14 @@ Software included:
 - service_now_apis.py - Python module with various ServiceNow functions
 - utils.py - Python module with few handy functions
 - netconf_restconf.py - RESTCONF and NETCONF interface operational status
+- verify_ip_duplicate.py - verify CLI templates for duplicated IP addresses with in production IP addresses
 
 This session will showcase the use of the open REST API's available in:
 
 - Cisco DNA Center
 - ASAv
 - Cisco UCS Director
-- Spark
+- Webex Teams
 - ServiceNow
 - IOS XE RESTCONF and NETCONF
 
