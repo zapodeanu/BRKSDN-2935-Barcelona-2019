@@ -26,18 +26,20 @@ import asav_apis
 import config
 import netconf_restconf
 import service_now_apis
+import ucsd_apis
 
 from PIL import Image, ImageDraw, ImageFont  # for image processing
 from urllib3.exceptions import InsecureRequestWarning  # for insecure https warnings
 from requests.auth import HTTPBasicAuth  # for Basic Auth
 
 
-from config import SPARK_AUTH, SPARK_URL, TROPO_KEY
+from config import WEBEX_TEAMS_AUTH, WEBEX_TEAMS_URL
 from config import GOOGLE_API_KEY
 from config import DNAC_URL, DNAC_USER, DNAC_PASS
 from config import ASAv_URL, ASAv_USER, ASAv_PASSW
 from config import UCSD_URL, UCSD_KEY
 from config import SNOW_URL, SNOW_ADMIN, SNOW_PASS
+from config import APPROVER_EMAIL
 
 DNAC_AUTH = HTTPBasicAuth(DNAC_USER, DNAC_PASS)
 ASAv_AUTH = HTTPBasicAuth(ASAv_USER, ASAv_PASSW)
@@ -48,7 +50,7 @@ urllib3.disable_warnings(InsecureRequestWarning)  # disable insecure https warni
 
 # Spark related
 ROOM_NAME = 'ERNA'
-from config import APPROVER_EMAIL
+
 
 # UCSD related
 UCSD_CONNECT_FLOW = 'Gabi_VM_Connect_VLAN_10'
@@ -90,7 +92,7 @@ def main():
         sys.stderr = err_log
 
         # configure basic logging to send to stdout, level DEBUG, include timestamps
-        logging.basicConfig(level=logging.DEBUG, stream=sys.stdout, format=('%(asctime)s - %(levelname)s - %(message)s'))
+        logging.basicConfig(level=logging.DEBUG, stream=sys.stdout, format='%(asctime)s - %(levelname)s - %(message)s')
 
     # the local date and time when the code will start execution
 
@@ -108,7 +110,7 @@ def main():
             print('- ', ROOM_NAME, ' -  Spark room created')
 
             # invite membership to the room
-            webex_teams_apis.add_room_membership(spark_room_id, APPROVER_EMAIL)
+            webex_teams_apis.add_space_membership(ROOM_NAME, APPROVER_EMAIL)
 
             webex_teams_apis.post_room_message(ROOM_NAME, 'To require access enter :  IPD')
             webex_teams_apis.post_room_message(ROOM_NAME, 'Ready for input!')
@@ -195,10 +197,10 @@ def main():
         print('\nApproval process completed')
 
     # get UCSD API key
-    ucsd_key = get_ucsd_api_key()
+    ucsd_key = ucsd_apis.get_ucsd_api_key()
 
     # execute UCSD workflow to connect VDI to VLAN, power on VDI
-    execute_ucsd_workflow(ucsd_key, UCSD_CONNECT_FLOW)
+    ucsd_apis.execute_ucsd_workflow(ucsd_key, UCSD_CONNECT_FLOW)
 
     log_ucsd_info = '\nUCSD connect flow executed'
     print(log_ucsd_info)
@@ -334,12 +336,6 @@ def main():
     log_access_info = '\nRequested access to this device: IPD, located in our office: '
     log_access_info += remote_device_location + ' by user: ' + last_person_email + ' has been granted for ' + str(int(timer / 60)) + ' minutes'
 
-    # Tropo notification - voice call
-
-    voice_notification_result = webex_teams_apis.tropo_notification()
-
-    webex_teams_apis.post_room_message(ROOM_NAME, 'Tropo Voice Notification: ' + voice_notification_result)
-    log_access_info += '\nTropo Voice Notification: ' + voice_notification_result
 
     # create and update ServiceNow incident
 
@@ -419,7 +415,7 @@ def main():
     print(log_asav_remove_info)
 
     # execute UCSD workflow to disconnect VDI to VLAN, power on VDI
-    execute_ucsd_workflow(ucsd_key, UCSD_DISCONNECT_FLOW)
+    ucsd_apis.execute_ucsd_workflow(ucsd_key, UCSD_DISCONNECT_FLOW)
 
     log_ucsd_remove_info = '\nUCSD disconnect flow executed'
     print(log_ucsd_remove_info)
